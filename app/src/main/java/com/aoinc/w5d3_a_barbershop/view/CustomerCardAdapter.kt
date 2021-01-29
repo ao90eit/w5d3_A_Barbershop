@@ -1,5 +1,6 @@
 package com.aoinc.w5d3_a_barbershop.view
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,7 +55,7 @@ class CustomerCardAdapter(
             progress.progress = customer.cutProgress.toInt()
             photo.setImageResource(customer.photoResourceID)
 
-            if (!barber.text.isNullOrBlank())
+            if (!customer.barberName.isBlank())
                 barber.text = "cut by ${customer.barberName}"
         }
     }

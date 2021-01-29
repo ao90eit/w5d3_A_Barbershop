@@ -15,7 +15,7 @@ data class Customer(
 
     var cutProgress: Float = 0f
     var id = this.hashCode()
-    lateinit var barberName: String
+    var barberName = ""
     private var isWaiting = true
 
     override fun run() {

@@ -13,7 +13,7 @@ class HandlerUtil(
 
     private val CORE_POOL_SIZE = 3
     private val MAX_POOL_SIZE = 7
-    private val KEEP_ALIVE_TIME = 10L
+    private val KEEP_ALIVE_TIME = 15L
 
     private lateinit var barbershopPoolManager: ThreadPoolExecutor
     private var customerQueue: BlockingQueue<Runnable> = LinkedBlockingQueue()
@@ -40,7 +40,7 @@ class HandlerUtil(
     }
 
     override fun newThread(r: Runnable?): Thread =
-        Thread(r, Constants.randomBarberName())
+        Thread(r, Constants.nextBarberName())
 
     fun addCustomerToQueue(customer: Customer) = barbershopPoolManager.execute(customer)
 

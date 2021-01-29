@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.aoinc.w5d3_a_barbershop.R
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
     private lateinit var newCustomerButton: Button
     private lateinit var earningsTextView: TextView
     var earnings: Double = 0.0
+    private lateinit var addCustomerFragmentView: FragmentContainerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +44,7 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
         startDayButton = findViewById(R.id.start_day_button)
         newCustomerButton = findViewById(R.id.new_customer_button)
         earningsTextView = findViewById(R.id.main_earnings_textView)
+        addCustomerFragmentView = findViewById(R.id.add_customer_fragment)
 
         handler = Handler(Looper.getMainLooper(), this)
         handlerUtil = HandlerUtil(handler)
@@ -52,12 +56,16 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
         (cuttingRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         newCustomerButton.setOnClickListener {
-            addCustomerBatch()
+//            addCustomerBatch()
+            addCustomerFragmentView.visibility = View.VISIBLE
+            it.isEnabled = false
         }
 
         startDayButton.setOnClickListener {
-            handlerUtil.beginServicingCustomers(waitingList)
-            it.isEnabled = false
+            if (waitingList.size > 0) {
+                handlerUtil.beginServicingCustomers(waitingList)
+                it.isEnabled = false
+            }
         }
     }
 
@@ -92,16 +100,31 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
         return true
     }
 
-    private fun addCustomerBatch(num: Int = 10) {
+    fun addCustomerBatch(num: Int = 10) {
         for (i in 0..num) {
             Customer(handler = handler)
-                .also {
-                    waitingList.add(it)
-                    waitingListAdapter.addItem(it)
-
-                    if (handlerUtil.isRunning())
-                        handlerUtil.addCustomerToQueue(it)
-                }
+                .also { addSingleCustomer(it) }
         }
+    }
+
+    private fun addSingleCustomer(customer: Customer = Customer(handler = handler)) {
+        waitingList.add(customer)
+        waitingListAdapter.addItem(customer)
+
+        if (handlerUtil.isRunning())
+            handlerUtil.addCustomerToQueue(customer)
+    }
+
+    fun addSingleCustomer(name: String, time: Int) {
+        addSingleCustomer(Customer(
+            handler = handler,
+            cuttingTime = time,
+            name = name
+        ))
+    }
+
+    fun closeAddFragment() {
+        addCustomerFragmentView.visibility = View.GONE
+        newCustomerButton.isEnabled = true
     }
 }

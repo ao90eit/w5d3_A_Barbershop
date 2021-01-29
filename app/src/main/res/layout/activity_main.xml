@@ -75,6 +75,22 @@
         android:textAlignment="viewEnd"
         android:text="Profit: $0.00" />
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/add_customer_fragment"
+        android:name="com.aoinc.w5d3_a_barbershop.view.AddCustomerFragment"
+        android:elevation="8dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="64dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/main_guide_horizontal_40"
         android:layout_width="wrap_content"
