@@ -1,5 +1,6 @@
 package com.aoinc.w5d3_a_barbershop.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.aoinc.w5d3_a_barbershop.R
 import com.aoinc.w5d3_a_barbershop.data.Customer
+import com.aoinc.w5d3_a_barbershop.service.SfxService
 import com.aoinc.w5d3_a_barbershop.util.Constants
 import com.aoinc.w5d3_a_barbershop.util.HandlerUtil
 
@@ -34,6 +36,8 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
     private lateinit var earningsTextView: TextView
     var earnings: Double = 0.0
     private lateinit var addCustomerFragmentView: FragmentContainerView
+
+    private lateinit var sfxServiceIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +69,13 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
             if (waitingList.size > 0) {
                 handlerUtil.beginServicingCustomers(waitingList)
                 it.isEnabled = false
+                earnings = 0.0
+                earningsTextView.text = String.format("Profit: $%.2f", earnings)
             }
         }
+
+        sfxServiceIntent = Intent(this, SfxService::class.java)
+            .also { it.putExtra(Constants.SFX_KEY, R.raw.cash_register) }
     }
 
     override fun handleMessage(msg: Message): Boolean {
@@ -87,7 +96,8 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
                     earningsTextView.text = String.format("Profit: $%.2f", earnings)
                     cuttingListAdapter.removeItem(pos)
                     cuttingList.removeAt(pos)
-                    // TODO: play sound here
+
+                    startService(sfxServiceIntent)
                 } else
                     cuttingListAdapter.updateItem(pos, cuttingList[pos].cutProgress)
             }

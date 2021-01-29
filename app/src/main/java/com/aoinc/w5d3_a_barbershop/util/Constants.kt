@@ -8,6 +8,7 @@ abstract class Constants {
         const val cutPricePerCount: Double = 2.34
         const val CUSTOMER_ID_KEY : String = "customer_id"
         const val CUSTOMER_IS_WAITING_KEY : String = "customer_is_waiting"
+        const val SFX_KEY: String = "sfx"
 
         private var i = -1
         fun nextBarberName(): String{
