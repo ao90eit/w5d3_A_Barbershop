@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.util.Log
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.aoinc.w5d3_a_barbershop.R
 import com.aoinc.w5d3_a_barbershop.data.Customer
 import com.aoinc.w5d3_a_barbershop.util.Constants
@@ -25,41 +27,81 @@ class MainActivity : AppCompatActivity(), Handler.Callback {
     private lateinit var cuttingRecyclerView: RecyclerView
     private val cuttingListAdapter = CustomerCardAdapter()
 
+    private lateinit var startDayButton: Button
+    private lateinit var newCustomerButton: Button
+    private lateinit var earningsTextView: TextView
+    var earnings: Double = 0.0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         waitingRecyclerView = findViewById(R.id.waiting_customer_recyclerView)
         cuttingRecyclerView = findViewById(R.id.active_customer_recyclerView)
+        startDayButton = findViewById(R.id.start_day_button)
+        newCustomerButton = findViewById(R.id.new_customer_button)
+        earningsTextView = findViewById(R.id.main_earnings_textView)
 
         handler = Handler(Looper.getMainLooper(), this)
         handlerUtil = HandlerUtil(handler)
 
-        waitingList.addAll(listOf(
-            Customer(handler = handler),
-            Customer(handler = handler),
-            Customer(handler = handler),
-            Customer(handler = handler)
-        ))
-
-        waitingListAdapter.updateList(waitingList)
         waitingRecyclerView.adapter = waitingListAdapter
-
         cuttingRecyclerView.adapter = cuttingListAdapter
-        cuttingListAdapter.addItem(waitingList[0])
 
-//        handlerUtil.beginServicingCustomers(customerList)
+        (waitingRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        (cuttingRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+
+        newCustomerButton.setOnClickListener {
+            addCustomerBatch()
+        }
+
+        startDayButton.setOnClickListener {
+            handlerUtil.beginServicingCustomers(waitingList)
+            it.isEnabled = false
+        }
     }
 
     override fun handleMessage(msg: Message): Boolean {
-        msg.data.apply {
-            waitingList.indexOfFirst { it.id == get(Constants.CUSTOMER_ID_KEY) }
-                .also { pos ->
-                    Log.d("TAG_X", "customer $pos progress = ${waitingList[pos].cutProgress}")
-//                    thing.updateItem(pos, customerList[pos].cutProgress)
-                }
+        when (msg.data.get(Constants.CUSTOMER_IS_WAITING_KEY)){
+            true -> {   // is waiting, needs to be moved to cutting
+                val pos = waitingList.indexOfFirst { it.id == msg.data.get(Constants.CUSTOMER_ID_KEY) }
+                cuttingList.add(waitingList[pos])
+                cuttingListAdapter.addItem(cuttingList[cuttingList.size - 1])
+                waitingList.removeAt(pos)
+                waitingListAdapter.removeItem(pos)
+            }
+            false -> {  // is already cutting
+                val pos =
+                    cuttingList.indexOfFirst { it.id == msg.data.get(Constants.CUSTOMER_ID_KEY) }
+
+                if (cuttingList[pos].cutProgress > 99) { // because floats can't be trusted lol
+                    earnings += (Constants.cutPricePerCount * cuttingList[pos].cuttingTime)
+                    earningsTextView.text = String.format("Profit: $%.2f", earnings)
+                    cuttingListAdapter.removeItem(pos)
+                    cuttingList.removeAt(pos)
+                    // TODO: play sound here
+                } else
+                    cuttingListAdapter.updateItem(pos, cuttingList[pos].cutProgress)
+            }
         }
 
+        // TODO: Hack -> Find out how to respond directly to thread pool execution completion.
+        if (cuttingList.size < 1)
+            startDayButton.isEnabled = true
+
         return true
+    }
+
+    private fun addCustomerBatch(num: Int = 10) {
+        for (i in 0..num) {
+            Customer(handler = handler)
+                .also {
+                    waitingList.add(it)
+                    waitingListAdapter.addItem(it)
+
+                    if (handlerUtil.isRunning())
+                        handlerUtil.addCustomerToQueue(it)
+                }
+        }
     }
 }

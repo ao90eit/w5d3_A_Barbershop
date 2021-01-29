@@ -5,19 +5,11 @@ import kotlin.random.Random
 
 abstract class CustomerCreator {
     companion object {
-        fun randomName(): String {
-            return names[Random.nextInt(names.size - 1)]
-        }
+        fun randomName(): String = names[Random.nextInt(names.size - 1)]
+        fun randomCuttingTime(): Int = Random.nextInt(10, 20)
+        fun randomPhotoID(): Int = photoIDs[Random.nextInt(photoIDs.size - 1)]
 
-        fun randomCuttingTime(): Int {
-            return Random.nextInt(10, 20)
-        }
-
-        fun randomPhotoID(): Int {
-            return photoIDs[Random.nextInt(photoIDs.size - 1)]
-        }
-
-        val names: Array<String> = arrayOf(
+        private val names: Array<String> = arrayOf(
             "Bridget",
             "Twila",
             "Jarred",
@@ -40,7 +32,7 @@ abstract class CustomerCreator {
             "Adolph"
         )
 
-        val photoIDs: Array<Int> = arrayOf(
+        private val photoIDs: Array<Int> = arrayOf(
             R.drawable.profile_pic_1,
             R.drawable.profile_pic_2,
             R.drawable.profile_pic_3,

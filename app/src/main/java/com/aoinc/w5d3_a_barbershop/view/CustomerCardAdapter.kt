@@ -20,8 +20,8 @@ class CustomerCardAdapter(
         notifyDataSetChanged()
     }
 
-    fun updateItem(position: Int, updatedCustomer: Customer) {
-        customerList[position] = updatedCustomer
+    fun updateItem(position: Int, progress: Float) {
+        customerList[position].cutProgress = progress
         notifyItemChanged(position)
     }
 
@@ -54,7 +54,7 @@ class CustomerCardAdapter(
             progress.progress = customer.cutProgress.toInt()
             photo.setImageResource(customer.photoResourceID)
 
-            if (barber.text.isNotBlank())
+            if (!barber.text.isNullOrBlank())
                 barber.text = "cut by ${customer.barberName}"
         }
     }

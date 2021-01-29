@@ -73,7 +73,7 @@
         android:layout_margin="16dp"
         android:textSize="32sp"
         android:textAlignment="viewEnd"
-        android:text="Earnings: $0.00" />
+        android:text="Profit: $0.00" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/main_guide_horizontal_40"

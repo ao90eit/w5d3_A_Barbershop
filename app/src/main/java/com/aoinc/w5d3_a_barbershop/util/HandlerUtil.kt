@@ -3,15 +3,16 @@ package com.aoinc.w5d3_a_barbershop.util
 import com.aoinc.w5d3_a_barbershop.data.Customer
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 class HandlerUtil(
     private val handler: android.os.Handler
-) {
+) : ThreadFactory {
 
     private val CORE_POOL_SIZE = 3
-    private val MAX_POOL_SIZE = 8
+    private val MAX_POOL_SIZE = 7
     private val KEEP_ALIVE_TIME = 10L
 
     private lateinit var barbershopPoolManager: ThreadPoolExecutor
@@ -26,7 +27,7 @@ class HandlerUtil(
         return ThreadPoolExecutor(
             CORE_POOL_SIZE, MAX_POOL_SIZE,
             KEEP_ALIVE_TIME, TimeUnit.SECONDS,
-            customerQueue
+            customerQueue, this
         )
     }
 
@@ -38,5 +39,15 @@ class HandlerUtil(
         }
     }
 
-    // TODO: write function to add new customers in the list to the queue
+    override fun newThread(r: Runnable?): Thread =
+        Thread(r, Constants.randomBarberName())
+
+    fun addCustomerToQueue(customer: Customer) = barbershopPoolManager.execute(customer)
+
+    fun isRunning(): Boolean {
+        if (this::barbershopPoolManager.isInitialized)
+            return barbershopPoolManager.activeCount > 0
+
+        return false
+    }
 }

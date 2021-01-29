@@ -15,9 +15,11 @@ data class Customer(
 
     var cutProgress: Float = 0f
     var id = this.hashCode()
-    var barberName = ""
+    lateinit var barberName: String
+    private var isWaiting = true
 
     override fun run() {
+        barberName = Thread.currentThread().name
         for (i in 1..cuttingTime) {
             Thread.sleep(500)
 
@@ -25,10 +27,12 @@ data class Customer(
 
             handler.sendMessage(Message.obtain().also { msg ->
                 msg.data = bundleOf(
-                    Constants.CUSTOMER_ID_KEY to id
-//                    Constants.CUT_PROGRESS_KEY to cutProgress
+                    Constants.CUSTOMER_ID_KEY to id,
+                    Constants.CUSTOMER_IS_WAITING_KEY to isWaiting
                 )
             })
+
+            isWaiting = false
         }
     }
 }
