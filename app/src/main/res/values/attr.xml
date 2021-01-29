@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomerCard">
+        <attr name="CustomerName" format="string"/>
+        <attr name="CutProgress" format="integer"/>
+        <attr name="PhotoSrcID" format="integer"/>
+        <attr name="BarberName" format="string"/>
+    </declare-styleable>
+</resources>

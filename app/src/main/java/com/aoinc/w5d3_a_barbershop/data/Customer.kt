@@ -14,18 +14,18 @@ data class Customer(
 ) : Runnable {
 
     var cutProgress: Float = 0f
-    var customerID = this.hashCode()
+    var id = this.hashCode()
+    var barberName = ""
 
     override fun run() {
         for (i in 1..cuttingTime) {
             Thread.sleep(500)
 
-            cutProgress = (i / cuttingTime.toFloat()) * 100
-            // TODO: test if toFloat() is needed
+            cutProgress = (i.toFloat() / cuttingTime) * 100
 
             handler.sendMessage(Message.obtain().also { msg ->
                 msg.data = bundleOf(
-                    Constants.CUSTOMER_ID_KEY to customerID
+                    Constants.CUSTOMER_ID_KEY to id
 //                    Constants.CUT_PROGRESS_KEY to cutProgress
                 )
             })
